@@ -1,0 +1,61 @@
+import tester.*;
+
+interface ILoString
+{
+  ILoString append(String newString);
+}
+
+
+class ConsLoString implements ILoString
+{
+  String first;
+  //ConsLoString rest;
+  ILoString rest;
+  
+  ConsLoString(String first, ILoString rest)
+  {
+    this.first = first;
+    this.rest = rest;
+  }
+  
+  // 
+  public  ILoString append(String newString) {
+    return new ConsLoString(newString,this);
+  }
+  
+}
+
+class MtLoString implements ILoString
+{
+  MtLoString(){}
+
+
+ public ILoString append(String newString)
+ {
+   return this;
+ }
+  
+}
+
+  
+  
+class ExamplesILoString
+{
+  
+  ExamplesILOString(){}
+  
+  ILoString emptyString = new MtLoString();
+
+  ILoString list_1 = new ConsLoString( "hello", new MtLoString());
+  ILoString list_2 = new ConsLoString( "hello", new ConsLoString( "how", new MtLoString()));
+  ILoString list_3 = new ConsLoString( "hello", new ConsLoString( "how", new ConsLoString("are", new ConsLoString("u", emptyString))));
+  
+  
+  
+  boolean testAppend(Tester t)
+  {
+    return
+    t.checkExpect(list_1.append("how"), new ConsLoString("how", new ConsLoString ("hello", new MtLoString())));
+  }
+  
+}

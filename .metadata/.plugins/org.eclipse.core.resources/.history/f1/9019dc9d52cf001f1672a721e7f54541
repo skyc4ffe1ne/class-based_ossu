@@ -1,0 +1,49 @@
+interface ILoString
+{
+  ILoString append(String newString);
+}
+
+
+class ConsLoString implements ILoString
+{
+  String first;
+  //ConsLoString rest;
+  ILoString rest;
+  
+  ConsLoString(String first, ILoString rest)
+  {
+    this.first = first;
+    this.rest = rest;
+  }
+  
+  // 
+  public  ILoString append(String newString) {
+    return this;
+  }
+  
+}
+
+class MtLoString implements ILoString
+{
+  MtLoString(){}
+
+
+ public ILoString append(String newString)
+ {
+   return this;
+ }
+  
+}
+
+  
+  
+class ExamplesILOString
+{
+  
+  ExamplesILOString(){}
+  
+  ILoString list_1 = new ConsLoString( "hello", new MtLoString());
+  
+  ILoString list_2 = new ConsLoString( "hello", new ConsLoString( "how", new MtLoString()));
+
+}

@@ -1,0 +1,114 @@
+import tester.*;
+
+interface IShape
+{
+  double distanceToOrigin();
+  double area();
+  IShape grow(int inc);
+  boolean isBiggerThan(IShape that);
+}
+
+// to represent 2-d point by Cartesian coordinate  
+class CartPT{
+    int x;
+    int y;
+    
+    CartPT(int x, int y){
+     this.x = x; 
+     this.y = y; 
+    }
+    
+    double distanceToOrigin() {
+      return Math.sqrt(this.x * this.x + this.y * this.y);
+    }
+
+    CartPT grow(int inc) {
+      return new CartPT((this.x +inc), (this.y + inc));
+    }
+}
+
+
+
+class Circle implements IShape
+{
+  CartPT points;
+  int radius;
+  String color;
+ 
+  Circle(CartPT points,int radius,String color)
+  {
+   this.points = points; 
+   this.radius = radius; 
+   this.color = color; 
+  }
+  
+  public double distanceToOrigin() {
+   return this.points.distanceToOrigin() - this.radius;
+  }
+  
+  public double area() {
+   return Math.PI * this.radius * this.radius;
+  }
+  
+  public IShape grow(int inc) {
+   return new Circle(this.points.grow(inc),this.radius,this.color);
+  }
+ 
+
+  public boolean isBiggerThan(IShape that) {
+    return this.area() > that.area();
+  }
+  
+}
+
+class Square implements IShape
+{
+
+  CartPT points;
+  int size;
+  String color;
+ 
+  Square(CartPT points, int size, String color)
+  {
+   this.points = points;
+   this.size = size;
+   this.color = color; 
+  }
+  
+
+  public double distanceToOrigin() {
+    return this.points.distanceToOrigin();
+  }
+
+  public double area() {
+   return this.size * this.size;
+  }
+  
+  public IShape grow(int inc) {
+   return new Square(this.points.grow(inc),this.size,this.color);
+  }
+  
+  public boolean isBiggerThan(IShape that) {
+    return this.area() > that.area();
+  }
+  
+}
+
+
+class ExamplesShape{
+  ExamplesShape(){}
+  CartPT point = new CartPT(50,50);
+  // Methods ?
+  
+  IShape c1 = new Circle(point,10,"red");
+
+  IShape s1 = new Square(point,30,"red");
+  
+  boolean testIShapeArea(Tester t) {
+    return t.checkInexact(this.c1.area(), 314.15,0.01) 
+        && t.checkInexact(this.s1.area(), 900.0, 0.01);
+  }
+  
+}
+
+

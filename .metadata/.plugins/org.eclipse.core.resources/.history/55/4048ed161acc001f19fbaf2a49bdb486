@@ -1,0 +1,45 @@
+
+class Soup{
+ String name;
+ float price;
+ boolean vegetarian;
+ 
+ 
+ Soup(String name, float price, boolean vegetarian){
+   this.name = name;
+   this.price = price;
+   this.vegetarian = vegetarian;
+ }
+
+}
+
+
+class Salad{
+ String name;
+ float price;
+ boolean vegetarian;
+ String dressed;
+ 
+ 
+ Soup(String name, float price, boolean vegetarian,String dressed){
+   this.name = name;
+   this.price = price;
+   this.vegetarian = vegetarian;
+   this.dressed = dressed;
+ }
+
+}
+
+class Soup{
+ String name;
+ float price;
+ boolean vegetarian;
+ 
+ 
+ Soup(String name, float price, boolean vegetarian){
+   this.name = name;
+   this.price = price;
+   this.vegetarian = vegetarian;
+ }
+
+}

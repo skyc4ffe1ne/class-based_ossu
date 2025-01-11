@@ -1,0 +1,34 @@
+import tester.*;
+class Book{
+  String title;
+  String author;
+  double price; 
+  
+  Book(String title, String author, double price){
+   this.title = title;
+   this.author = author;
+   this.price = price;
+  }
+  
+//Compute the sale price of this Book given using
+//the given discount rate (as a percentage)
+  
+  double salePrice(int discount ) {
+   return this.price - ((this.price * discount) / 100); 
+  }
+}
+
+
+
+
+
+
+class ExampleBook{
+  
+  Book b1 = new Book("Titolo", "amigo", 60);
+
+
+  boolean testSalePrice(Tester t) {
+    return t.checkExpect(this.b1.salePrice(30),42.0);
+  }
+}

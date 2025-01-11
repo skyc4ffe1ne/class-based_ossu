@@ -1,0 +1,33 @@
+interface IAT{}
+
+
+
+class Person implements IAT{
+  String name;
+  int age ;
+  String gender;
+  
+  
+  Person(String name,int age, String gender){
+   this.name = name; 
+   this.age = age; 
+   this.gender = gender; 
+  }
+
+}
+
+
+
+class ExamplesAnchestors{
+  IAT p4 = new Person ("Brian", 78, "male");
+  IAT p5 = new Person ("Viktoria", 81, "female");
+  
+  IAT p2 = new Person ("Mike", 48, "male");
+  IAT p3 = new Person ("Rihanna", 38, "female");
+
+  IAT p1 = new Person ("Brian", 18, "male");
+
+ 
+}
+
+

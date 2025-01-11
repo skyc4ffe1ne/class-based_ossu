@@ -1,0 +1,12 @@
+class Soup{
+ String name;
+ float price;
+ boolean vegetarian;
+ 
+ 
+ Soup(String name, float price, boolean vegetarian){
+   this.name = name;
+   this.price = price;
+   this.vegetarian = vegetarian;
+ }
+}

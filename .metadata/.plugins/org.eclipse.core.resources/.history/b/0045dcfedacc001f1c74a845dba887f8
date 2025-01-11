@@ -1,0 +1,20 @@
+class BaseTile
+{
+/*Template:
+ * Fields:
+ * ... this.value ... -- int
+ * 
+ * Methods:
+ * ... this.mergeTile(BaseTile) -- int
+ * */
+  int value;
+  
+  BaseTile(int value){
+   this.value = value;
+  }
+  
+  int mergeTile(BaseTile that){
+    return this.value  + that.value;
+  }
+  
+}
