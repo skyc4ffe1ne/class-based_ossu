@@ -3,9 +3,13 @@ import tester.*;
 interface ILoString
 {
   ILoString append(String newString);
-
   ILoString appendLast(String newString); 
-   
+
+  ILoString appendAcc(String newString,int acc);
+  ILoString appendAccHelper(String newString,int acc);
+
+//  ILoString appendLastAcc(String newString); 
+
 }
 
 
@@ -21,22 +25,34 @@ class ConsLoString implements ILoString
     this.rest = rest;
   }
   
-  // 
   public  ILoString append(String newString) {
     return new ConsLoString(newString,this);
   }
   
-  
-//  
-//   public  ILoString appendLast(String newString) {
-//     return new ConsLoString(this.first, new ConsLoString(newString,this.rest));
-//  }
-  
-
   public ILoString appendLast(String newString) 
   {
     return new ConsLoString(this.first, this.rest.appendLast(newString));
   }
+  
+  
+  public ILoString appendAcc(String newString, int acc)
+  {
+   return this.appendAccHelper(newString,acc);
+  }
+  
+  
+  
+  public ILoString appendAccHelper(String newString, int acc)
+  {
+    if(acc == 0)
+    {
+     return new ConsLoString(newString,this);
+    }
+    else {
+     return this.appendAccHelper(newString,acc - 1);
+    }
+  }
+  
   
 }
 
@@ -56,7 +72,22 @@ class MtLoString implements ILoString
      return new ConsLoString(newString, this);
   } 
   
-   
+  
+   public ILoString appendAcc(String newString, int acc)
+   {
+     return this;
+   }
+ 
+  
+  public ILoString appendAccHelper(String newString, int acc)
+  {
+    return this;
+  }
+ 
+  public ILoString appendLastAcc(String newString) 
+  {
+     return new ConsLoString(newString, this);
+  } 
   
 }
 
@@ -83,6 +114,18 @@ class ExamplesILoString
     && t.checkExpect(list_3.append("how"), new ConsLoString("how", list_3))
     ; 
   }
+  
+  
+  boolean testAppendAcc(Tester t)
+  {
+    return
+    t.checkExpect(list_1.appendAcc("how",1), new ConsLoString("how", new ConsLoString ("hello", new MtLoString()))) 
+    && t.checkExpect(list_2.appendAcc("how",2), new ConsLoString("how", list_2))
+    && t.checkExpect(list_3.appendAcc("how",3), new ConsLoString("how", list_3))
+    ; 
+  }
+
+
 
   boolean testAppendLast(Tester t)
   {
