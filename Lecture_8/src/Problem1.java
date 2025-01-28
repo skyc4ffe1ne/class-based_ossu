@@ -9,6 +9,12 @@ Author(String name, String surname)
  this.name = name; 
  this.surname = surname; 
 }
+
+
+boolean sortSurname(Author other) {
+ return this.surname.compareTo(other.surname) <= 0; 
+}
+
 }
 
 class Document 
@@ -82,7 +88,9 @@ interface ILoDocuments
   ILoDocuments removeDuplicates();
   ILoDocuments helperRemoveDuplicates(Document doc);
   boolean      contains(Document doc);
-
+  
+  ILoDocuments sortByLastName();
+  ILoDocuments insert(Document doc); 
 }
 
 class ConsLoDocuments implements ILoDocuments
@@ -131,6 +139,25 @@ class ConsLoDocuments implements ILoDocuments
     return doc.sameAuthor(this.first) && doc.sameTitle(this.first);
   }
 
+  
+  
+
+  public ILoDocuments sortByLastName() {
+    return this.rest.sortByLastName().insert(this.first);
+  }
+  
+  
+  public ILoDocuments insert(Document other)
+  {
+    if(this.first.author.sortSurname(other.author)) {
+     return new ConsLoDocuments(this.first,this.rest);
+    }else {
+     return new ConsLoDocuments(other,this.rest.insert(this.first));
+    }
+
+  }
+  
+  
 }
 
 
@@ -167,6 +194,17 @@ class MtLoDocuments implements ILoDocuments
   public boolean contains(Document doc) {
     return false;
   }
+  
+  
+  
+  public ILoDocuments sortByLastName() {
+    return this;
+  } 
+
+  public ILoDocuments insert(Document doc) {
+    return new ConsLoDocuments(doc,this);
+  } 
+
 
 }
 
@@ -231,7 +269,8 @@ class ExamplesDocuments{
   Document d3_2 = new Document(a3, "title3", b3, l2);
   ILoDocuments l3_2 =  new ConsLoDocuments(d3,new ConsLoDocuments(d3_2,emptyList));
 
-
+  Document d2_2 = new Document(a2, "title2", b2, l1);
+  ILoDocuments l2_2 =  new ConsLoDocuments(d2_2,new ConsLoDocuments(d0,new ConsLoDocuments(d1,new ConsLoDocuments(d2,emptyList))));
 
 
   
@@ -256,20 +295,35 @@ class ExamplesDocuments{
  boolean testRemoveDuplicate(Tester t)
   {
     return
-    t.checkExpect(l3_2.removeDuplicates(), new ConsLoDocuments(d3, emptyList)) 
-    &&
-    t.checkExpect(l4_2.removeDuplicates(), l4) 
-    &&
-    t.checkExpect(l5_2.removeDuplicates(), l5)
-    &&
-    t.checkExpect(l2.removeDuplicates(), l2)
-    &&
-    t.checkExpect(l1.removeDuplicates(), l1)
-    &&
-    t.checkExpect(l0.removeDuplicates(), l0)
-     ;
+//        t.checkExpect(l2_2.removeDuplicates(), new ConsLoDocuments(d2_2,new ConsLoDocuments(d0,new ConsLoDocuments(d1, emptyList))))
+//        &&
+        t.checkExpect(l3_2.removeDuplicates(), new ConsLoDocuments(d3, emptyList)) 
+        &&
+        t.checkExpect(l4_2.removeDuplicates(), l4) 
+        &&
+        t.checkExpect(l5_2.removeDuplicates(), l5)
+        &&
+        t.checkExpect(l2.removeDuplicates(), l2)
+        &&
+        t.checkExpect(l1.removeDuplicates(), l1)
+        &&
+        t.checkExpect(l0.removeDuplicates(), l0)
+        ;
   }
   
+ 
+  boolean testSortByLastName(Tester t)
+  {
+    return
+        t.checkExpect(l0.sortByLastName(),l0)
+        &&
+        t.checkExpect(l1.sortByLastName(),l1)
+        &&
+        t.checkExpect(l2_2.sortByLastName(),new ConsLoDocuments(d0,new ConsLoDocuments(d1,new ConsLoDocuments(d2_2,new ConsLoDocuments(d2,emptyList)))))
+        ;
+
+  }
+ 
   
 }
 
