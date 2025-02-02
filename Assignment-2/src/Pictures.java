@@ -6,7 +6,7 @@ interface IPicture{
  int getWidth();
  int countShape();
  int comboDepth();
- IPicture mirror(); 
+// IPicture mirror(); 
  String pictureRecipe(int depth);
 }
 
@@ -18,32 +18,29 @@ class Shape implements IPicture{
  Shape(String kind, int size){
   this.kind = kind; 
   this.size = size; 
- }
+}
 
- public int getWidth() {
-   return this.size;
- }
- 
- public int countShape() {
-     return 1;
- }
 
- public int comboDepth() {
-     return 0;
- }
+public int getWidth() {
+ return this.size;
+}
 
- public IPicture mirror()
- {
-   return this;
- }
+public int countShape() {
+   return 1;
+}
 
- public String pictureRecipe(int depth) {
-  return this.kind; 
- }
+public int comboDepth() {
+   return 0;
+}
 
- String combine(String other) {
-   return this.kind + other;
- }
+//public IPicture mirror()
+//{
+// return this;
+//}
+
+public String pictureRecipe(int depth) {
+return this.kind; 
+}
 
 }
 
@@ -56,95 +53,181 @@ and an operation describing how this image was put together.
 class Combo implements IPicture{
   // string describing what simple shape it is
  String name;
- String operation;
- IPicture top; 
- IPicture bottom; 
+ IOperation operation;
  
- 
-Combo(String name, String operation, IPicture top, IPicture bottom){
- this.name = name; 
- this.operation = operation; 
- this.top  = top; 
- this.bottom = bottom; 
-}
+ Combo(String name, IOperation operation){
+   this.name = name; 
+   this.operation = operation; 
+ }
 
+ 
  public int getWidth()
  {
-   if(this.operation.equals("Beside")) {
-    return this.top.getWidth() + this.bottom.getWidth();
-   }else {
-     if(this.operation.equals("Scale"))
-     {
-       return this.top.getWidth() * 2;
-     }else {
-       return Math.max(this.top.getWidth(), this.bottom.getWidth());
-     }
-   }
-   
+   return this.operation.getWidth();
  }
  
- public int countShape() {
-   if(this.operation.equals("Scale"))
-   {
-     return 0 + this.top.countShape(); 
-   }else {
-     return 0 + this.top.countShape() + this.bottom.countShape();
-   }
+ public int countShape()
+ {
+   return this.operation.countShape();
  }
 
+ 
  public int comboDepth() {
-   if(this.operation.equals("Scale"))
-   {
-     return 1 + this.top.comboDepth(); 
-   }else {
-     return 1 + Math.max(this.top.comboDepth(), this.bottom.comboDepth());
-   }
+   return this.operation.comboDepth();
  }
  
- 
- public IPicture mirror(){
-  if(this.operation.equals("Beside")) {
-    return new Combo(this.name,this.operation,this.bottom.mirror(),this.top.mirror());
-  }else {
-    return this;
-  }
- }
- 
- 
+// public IOperation mirror()
+// {
+//   return this.operation.mirror();
+// }
+
  public String pictureRecipe(int depth) {
-   if (depth <= 0) {
-       return this.name;
+   if(depth <= 0)
+   {
+     return this.name;
    }else {
-     if(this.operation.equals("Scale"))
-     {
-       return this.operation + "(" + this.top.pictureRecipe(depth - 1) + ")";
-     }else {
-       return this.operation + "(" + this.bottom.pictureRecipe(depth - 1) + ", " + this.top.pictureRecipe(depth - 1) + ")";
-     }
+     return this.operation.pictureRecipe(depth); 
    }
  }
 
 }
+
+
+
+interface IOperation
+{
+  int getWidth();
+  int countShape();
+  int comboDepth();
+  IOperation mirror();
+  String pictureRecipe(int depth);
+}
+
+class Scale implements IOperation{
+  IPicture top; 
+  
+  Scale(IPicture top)
+  {
+    this.top = top;
+  }
+  
+  public int getWidth()
+  {
+    return this.top.getWidth() * 2;
+  }
+  
+  public int countShape() {
+    return 0 + this.top.countShape(); 
+  }
+  
+  public int comboDepth() {
+    return 1 + this.top.comboDepth(); 
+  }
+
+  public IOperation mirror(){
+    return this;
+  }
+  
+  public String pictureRecipe(int depth) {
+    return "Scale" + "(" + this.top.pictureRecipe(depth - 1) + ")";
+  }
+
+}
+
+class Overlay implements IOperation{
+  IPicture top; 
+  IPicture bottom; 
+
+  Overlay(IPicture top, IPicture bottom)
+  {
+    this.top = top;
+    this.bottom = bottom;
+  }
+
+  public int getWidth()
+  {
+    return Math.max(this.top.getWidth(), this.bottom.getWidth());
+  }
+  
+  public int countShape()
+  {
+   return 0 + this.top.countShape() + this.bottom.countShape();
+  }
+ 
+  public int comboDepth() {
+    return 1 + Math.max(this.top.comboDepth(), this.bottom.comboDepth());
+  } 
+  
+  public IOperation  mirror()
+  {
+    return this;
+  }
+
+  public String pictureRecipe(int depth) {
+    return "Overlay" + "(" + this.bottom.pictureRecipe(depth - 1) + ", " + this.top.pictureRecipe(depth - 1) + ")";
+  }
+ 
+}
+
+class Beside implements IOperation{
+  IPicture top; 
+  IPicture bottom; 
+  
+  Beside(IPicture top, IPicture bottom)
+  {
+    this.top = top;
+    this.bottom = bottom;
+  }
+  
+  public int getWidth()
+  {
+    return this.top.getWidth() + this.bottom.getWidth();
+  }
+
+  public int countShape()
+  {
+    return 0 + this.top.countShape() + this.bottom.countShape();
+  }
+  
+  public int comboDepth() {
+    return 1 + Math.max(this.top.comboDepth(), this.bottom.comboDepth());
+  } 
+  
+  public IOperation mirror(){
+    return new Beside(this.bottom,this.top);
+  }
+  
+  public String pictureRecipe(int depth) {
+     return "Beside" + "(" + this.bottom.pictureRecipe(depth - 1) + ", " + this.top.pictureRecipe(depth - 1) + ")";
+  }
+
+}
+
+
 
 class ExamplesPicture{
   ExamplesPicture(){}
   
-  // Pictures
-  IPicture c1 = new Shape("circle", 20);
-  IPicture s1 = new Shape("square", 30);
+  // Shapes
+  IPicture c_0 = new Shape("circle",20);
+  IPicture s_0 = new Shape("square",30);
+
+  // Operations and Combo
+  IOperation scale_0 = new Scale(c_0); 
+  IPicture scaleExample = new Combo("big circle", scale_0); 
+
+  IOperation overlay_0 = new Overlay(scaleExample,s_0); 
+  IPicture overlayExample = new Combo("A square on a circle", overlay_0);
   
-  IPicture scaleExample = new Combo("big circle", "Scale", c1, null); 
-
-  IPicture overlayExample = new Combo("A square on a circle", "Overlay", scaleExample, s1);
-
-  IPicture besideExample = new Combo("doubled square on circle", "Beside", overlayExample, overlayExample);
+  IOperation beside_0 = new Beside(overlayExample,overlayExample); 
+  IPicture besideExample = new Combo("doubled square on circle", beside_0);
 
   boolean testGetWidth(Tester t)
  {
     return
-        t.checkExpect(c1.getWidth(), 20)
+        t.checkExpect(c_0.getWidth(), 20)
         &&
-        t.checkExpect(s1.getWidth(), 30)
+        t.checkExpect(s_0.getWidth(), 30)
         &&
         t.checkExpect(overlayExample.getWidth(), 40)
         &&
@@ -152,13 +235,12 @@ class ExamplesPicture{
         ;
  }
   
-  
  boolean testCountShape(Tester t)
  {
     return
-        t.checkExpect(c1.countShape(), 1)
+        t.checkExpect(c_0.countShape(), 1)
         &&
-        t.checkExpect(s1.countShape(), 1)
+        t.checkExpect(s_0.countShape(), 1)
         &&
         t.checkExpect(overlayExample.countShape(), 2)
         &&
@@ -169,9 +251,9 @@ class ExamplesPicture{
  boolean testComboDepth(Tester t)
  {
     return
-        t.checkExpect(c1.comboDepth(), 0)
+        t.checkExpect(c_0.comboDepth(), 0)
         &&
-        t.checkExpect(s1.comboDepth(), 0)
+        t.checkExpect(s_0.comboDepth(), 0)
         &&
         t.checkExpect(overlayExample.comboDepth(), 2)
         &&
@@ -181,18 +263,28 @@ class ExamplesPicture{
 
  boolean testMirror(Tester t)
  {
+
+   IPicture overlayExampleTop = new Combo("A square on a circle", overlay_0);
+   IPicture overlayExampleBottom = new Combo("A square on a circle", overlay_0);
+   
+   IOperation beside_1 = new Beside(overlayExampleTop,overlayExampleBottom);
+
     return
-        t.checkExpect(c1.mirror(), c1)
+//        t.checkExpect(c1.mirror(), c1)
+//        &&
+//        t.checkExpect(s1.mirror(), s1)
+//        &&
+//        t.checkExpect(overlayExample.mirror(), new Combo("A square on a circle", "Overlay", scaleExample, s1))
+//        &&
+//        t.checkExpect(besideExample.mirror(), new Combo("doubled square on circle", "Beside", overlayExample, overlayExample))
+        t.checkExpect(overlay_0.mirror(), overlay_0)
         &&
-        t.checkExpect(s1.mirror(), s1)
+        t.checkExpect(beside_0.mirror(), new Beside(overlayExample,overlayExample))
         &&
-        t.checkExpect(overlayExample.mirror(), new Combo("A square on a circle", "Overlay", scaleExample, s1))
-        &&
-        t.checkExpect(besideExample.mirror(), new Combo("doubled square on circle", "Beside", overlayExample, overlayExample))
+        t.checkExpect(beside_1.mirror(), new Beside(overlayExampleBottom,overlayExampleTop))
         ;
  }
 
- 
  boolean testPictureRecipe(Tester t)
  {
     return
