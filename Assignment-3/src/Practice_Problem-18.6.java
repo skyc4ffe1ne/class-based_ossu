@@ -1,6 +1,10 @@
 import tester.*;
 
 interface IComposite {
+  // *Constants*
+  double DELTA = 0.01;
+
+  // *Methods*
   // Calculate the area of ​​the shape
   double area();
   // Calculate the distance of the shape from the origin
@@ -10,7 +14,9 @@ interface IComposite {
   // Return the "bounding box", the smallest rectangle that contains the shape
   BoundingBox bb();
   // determines whether this shape is of equal size as some other
-  boolean same();
+  boolean same(IComposite that);
+  // determines whether this shape is closer to the origin than some other
+  boolean closerTo(IComposite that);
 }
 
 class BoundingBox
@@ -30,9 +36,9 @@ class BoundingBox
   BoundingBox combine(BoundingBox that) {
     return new BoundingBox(
         Math.min(this.left,that.left),
-        Math.min(this.right,that.right),
+        Math.max(this.right,that.right),
         Math.min(this.top,that.top),
-        Math.min(this.bottom,that.bottom)
+        Math.max(this.bottom,that.bottom)
         );
   }
 }
@@ -88,14 +94,18 @@ class Square implements IComposite{
        && this.loc.posY < p.posY && this.loc.posY + this.size > p.posY;
   }
   
-  
   public BoundingBox bb() {
     return new BoundingBox(this.loc.posX,this.loc.posX + this.size, this.loc.posY, this.loc.posY + this.size);
   }
   
   public boolean same(IComposite that)
   {
-    return this.area() == that.area();
+    return Math.abs(this.area() - that.area()) <= DELTA;
+  }
+  
+  public boolean closerTo(IComposite that)
+  {
+    return this.distTo0() <= that.distTo0();
   }
 }
 
@@ -129,6 +139,15 @@ class Circle implements IComposite{
     return new BoundingBox(this.loc.posX - this.radius, this.loc.posX + this.radius, this.loc.posY - this.radius, this.loc.posY + this.radius);
   } 
   
+  public boolean same(IComposite that)
+  {
+    return Math.abs(this.area() - that.area()) <= DELTA;
+  }
+  
+  public boolean closerTo(IComposite that)
+  {
+    return this.distTo0() <= that.distTo0();
+  }
 }
 
 class SuperImp implements IComposite{
@@ -159,6 +178,15 @@ class SuperImp implements IComposite{
     return this.top.bb().combine(this.bottom.bb());
   } 
  
+  public boolean same(IComposite that)
+  {
+    return Math.abs(this.area() - that.area()) <= DELTA;
+  }
+  
+  public boolean closerTo(IComposite that)
+  {
+    return this.distTo0() <= that.distTo0();
+  }
 }
 
 
@@ -226,6 +254,41 @@ class ExamplesComposite {
         ;
   }
   
+  boolean testSame(Tester t)
+  {
+    IComposite s_2 = new Square(new CartPT(10, 10), 40); 
+    
+    IComposite u_4 = new SuperImp(s_0, c_0);
+    IComposite u_5 = new SuperImp(s_2, c_1);
+
+    return 
+        t.checkExpect(s_0.same(s_1), false)
+        &&
+        t.checkExpect(c_0.same(c_1), true)
+        &&
+        t.checkExpect(s_0.same(s_0), true) 
+        &&
+        t.checkExpect(u_0.same(u_1), false)
+        &&
+        t.checkExpect(u_4.same(u_5), true)
+        ;
+  }
+  
+  boolean testCloserTo(Tester t) {
+    return
+        t.checkExpect(s_0.closerTo(s_1), true)
+        &&
+        t.checkExpect(s_1.closerTo(c_0), false)
+        &&
+        t.checkExpect(c_0.closerTo(c_1), false)
+        &&
+        t.checkExpect(u_1.closerTo(u_2), true)
+        &&
+        t.checkExpect(u_2.closerTo(u_3), false)
+        &&
+        t.checkExpect(u_1.closerTo(u_2), true)
+        ;
+  }
   
 }
 
