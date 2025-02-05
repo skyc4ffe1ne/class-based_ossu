@@ -14,9 +14,9 @@ interface ILoString {
     // first, third, fifth elements are from the list
     // second, fourth, sixth elements are from the given list  
     ILoString interleave(ILoString otherLos);
-    ILoString helperInterleave(ILoString otherLos, int acc);
-    ILoString insert(ILoString otherLoS,int acc);
-    ILoString helperInsert(ILoString otherLoS, int acc, int accInt); 
+    String getFirst();
+    ILoString getRest();
+    ILoString filter();
 }
 
 // to represent an empty list of Strings
@@ -40,24 +40,24 @@ class MtLoString implements ILoString {
     
     public ILoString interleave(ILoString otherLoS)
     {
+      return otherLoS;
+    }
+    
+    public String getFirst()
+    {
+      return "";
+    }
+    
+    public ILoString getRest()
+    {
       return this;
     }
     
-    public ILoString helperInterleave(ILoString otherLoS, int acc)
+    public ILoString filter()
     {
       return this;
-    }
-
-
-    public ILoString insert(ILoString otherLoS,int acc)
-    {
-      return this;
-    }
-
-    public ILoString helperInsert(ILoString otherLoS, int acc, int accInt)
-    {
-      return this;
-    }
+    } 
+    
 }
 
 
@@ -108,42 +108,31 @@ class ConsLoString implements ILoString {
     }
     
     
-    public ILoString interleave(ILoString otherLoS)
-    {
-      return this.helperInterleave(otherLoS, 0);
-    }
-    
-    public ILoString helperInterleave(ILoString otherLoS, int acc)
-    {
-      if(acc <= 6)
-      {
-        System.out.println("helperInterleave: acc = " + acc);
-       return this.insert(otherLoS, acc + 1);
-      }else {
-        return this;
-      }
-    }
-    
-   public ILoString insert(ILoString otherLoS,int acc) 
+   public ILoString interleave(ILoString otherLoS)
    {
-
-    int accInt = acc;
-    System.out.println("insert: acc = " + acc + ", first = " + this.first);
-    if(acc % 2 == 0)
-    {
-     return otherLoS.helperInsert(this, acc, accInt); 
-    }else {
-     return this.helperInsert(otherLoS, acc, accInt);
-    }
+      return new ConsLoString(this.first, new ConsLoString(otherLoS.getFirst(), this.rest.interleave(otherLoS.getRest()))).filter();
+   }
+    
+   public String getFirst()
+   {
+     return this.first;
    }
    
-   public ILoString helperInsert(ILoString otherLoS, int acc, int accInt ) {
-     if(accInt == 1) {
-       return new ConsLoString(this.first,this.rest.helperInterleave(otherLoS, acc));
-     }{
-       return this.rest.helperInsert(otherLoS, acc, accInt - 1);
-     }
+   public ILoString getRest()
+   {
+     return this.rest;
    }
+   
+   public ILoString filter()
+   {
+    if(this.first == "")
+    {
+      return this.rest.filter();
+    }else {
+      return new ConsLoString(this.first, this.rest.filter());
+    }
+   }
+  
 }
 
 // to represent examples for lists of strings
@@ -201,7 +190,19 @@ class ExamplesStrings{
                               new ConsLoString("little ",
                                   new ConsLoString("dance.",
                                       new ConsLoString("lamb.", new MtLoString())))))))));
+
+      ILoString mt = new MtLoString();
+      ILoString list1 = new ConsLoString("a", new ConsLoString("b", new ConsLoString("c", mt)));
+      ILoString list2 = new ConsLoString("1", new ConsLoString("2", new ConsLoString("3", mt)));
+      ILoString list3 = new ConsLoString("a", new ConsLoString("1", new ConsLoString("b", new ConsLoString("2", new ConsLoString("c", new ConsLoString("3", mt))))));
       return
-          t.checkExpect(this.mary.interleave(cat_dancing), mary_cat);
+          t.checkExpect(this.mary.interleave(cat_dancing), mary_cat)
+          &&
+          t.checkExpect(mt.interleave(list1), list1) 
+          &&
+          t.checkExpect(list1.interleave(mt), list1) 
+          &&
+          t.checkExpect(list1.interleave(list2), list3)
+          ;
     }
 }
