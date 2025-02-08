@@ -6,6 +6,7 @@ import tester.*;
 interface ILoString {
     // combine all Strings in this list into one
     String combine();
+
     // determines whether this list is sorted in alphabetical order, in a case-insensitive way.
     boolean isSorted();
     boolean helperIsSorted(String el);
