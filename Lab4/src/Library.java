@@ -3,6 +3,7 @@ import tester.Tester;
 interface IBook{
   int daysOverdue(int today);
   boolean isOverdue(int day);
+  double computeFine(int day);
 }
 
 abstract class ABook implements IBook{
@@ -23,6 +24,14 @@ abstract class ABook implements IBook{
     // If this.daysOverdue >= 0 is Overdue (true) 
     // Else isn't (false) 
     return this.daysOverdue(day) >= 0;
+  }
+  
+  public double computeFine(int day) {
+    if(this.daysOverdue(day) >= 0) {
+      return this.daysOverdue(day) * 0.10;
+    }else {
+      return 0.0;
+    }
   }
 
 }
@@ -58,6 +67,14 @@ class AudioBook extends ABook {
   AudioBook(String title, String author, int dayTaken){
     super(title,dayTaken);
     this.author = author;
+  }
+  
+  public double computeFine(int day) {
+    if(this.daysOverdue(day) >= 0) {
+      return this.daysOverdue(day) * 0.20;
+    }else {
+      return 0.0;
+    }
   }
 }
 
@@ -106,7 +123,7 @@ class ExamplesLibrary{
   }
   
   
-  boolean testOverdue(Tester t) {
+  boolean testIsOverdue(Tester t) {
     return 
         t.checkExpect(b_0.isOverdue(8012), false)
         &&
@@ -121,4 +138,24 @@ class ExamplesLibrary{
         t.checkExpect(ab_0.isOverdue(8010), true)
         ;
   }
+  
+  
+  boolean testComputeFine(Tester t) {
+    return 
+        t.checkInexact(b_0.computeFine(8014), 0.10, 0.001)
+        &&
+        t.checkInexact(b_0.computeFine(8013), 0.00, 0.001)
+        &&
+        t.checkInexact(b_1.computeFine(8014), 2.00, 0.001)
+        &&
+        t.checkInexact(rb_0.computeFine(8001), 1.70, 0.001)
+        &&
+        t.checkInexact(rb_1.computeFine(8001), 1.30, 0.001)
+        &&
+        t.checkInexact(ab_0.computeFine(8010), 0.00, 0.001)
+        &&
+        t.checkInexact(ab_1.computeFine(8010), 24.20, 0.001);
+  }
+
+
 }
