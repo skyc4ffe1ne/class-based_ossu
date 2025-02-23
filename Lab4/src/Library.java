@@ -2,6 +2,7 @@ import tester.Tester;
 
 interface IBook{
   int daysOverdue(int today);
+  boolean isOverdue(int day);
 }
 
 abstract class ABook implements IBook{
@@ -17,6 +18,12 @@ abstract class ABook implements IBook{
   public int daysOverdue(int today) {
     return today - (this.dayTaken + 14);
   }
+  
+  public boolean isOverdue(int day) {
+    // If this.daysOverdue >= 0 is Overdue (true) 
+    // Else isn't (false) 
+    return this.daysOverdue(day) >= 0;
+  }
 
 }
 
@@ -25,21 +32,24 @@ class Book extends ABook {
   
   Book(String title, String author, int dayTaken){
    super(title,dayTaken);
-   this.dayTaken = dayTaken; 
+   this.author = author;
   }
 }
 
 class RefBook extends ABook {
- 
-  RefBook(String title, int dayTaken){
-    super(title,dayTaken);
- }
   
- public int daysOverdue(int today)
- {
-   return today - (this.dayTaken + 2);
- }
+  RefBook(String title, int dayTaken) {
+    super(title, dayTaken);
+  }
+  
+  public int daysOverdue(int today) {
+    return today - (this.dayTaken + 2);
+  }
+ 
 
+  public boolean isOverdue(int day) {
+    return this.daysOverdue(day) >= 0; 
+  }
 }
 
 class AudioBook extends ABook {
@@ -47,7 +57,7 @@ class AudioBook extends ABook {
   
   AudioBook(String title, String author, int dayTaken){
     super(title,dayTaken);
-    this.dayTaken = dayTaken; 
+    this.author = author;
   }
 }
 
@@ -95,4 +105,20 @@ class ExamplesLibrary{
 
   }
   
+  
+  boolean testOverdue(Tester t) {
+    return 
+        t.checkExpect(b_0.isOverdue(8012), false)
+        &&
+        t.checkExpect(b_0.isOverdue(8014), true)
+        &&
+        t.checkExpect(rb_0.isOverdue(7983), false)
+        &&
+        t.checkExpect(rb_0.isOverdue(7985), true)
+        &&
+        t.checkExpect(ab_0.isOverdue(8005), false)
+        &&
+        t.checkExpect(ab_0.isOverdue(8010), true)
+        ;
+  }
 }
