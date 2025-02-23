@@ -11252,3 +11252,25 @@ java.lang.IllegalArgumentException: ";" at 0
 	at org.eclipse.equinox.launcher.Main.invokeFramework(Main.java:668)
 	at org.eclipse.equinox.launcher.Main.basicRun(Main.java:605)
 	at org.eclipse.equinox.launcher.Main.run(Main.java:1481)
+!SESSION 2025-02-23 22:16:14.535 -----------------------------------------------
+eclipse.buildId=4.33.0.20240905-0613
+java.version=23.0.1
+java.vendor=Eclipse Adoptium
+BootLoader constants: OS=macosx, ARCH=x86_64, WS=cocoa, NL=en_IT
+Framework arguments:  -product org.eclipse.epp.package.java.product -keyring /Users/skyc4ff3ine/.eclipse_keyring
+Command-line arguments:  -os macosx -ws cocoa -arch x86_64 -product org.eclipse.epp.package.java.product -keyring /Users/skyc4ff3ine/.eclipse_keyring
+
+!ENTRY ch.qos.logback.classic 1 0 2025-02-23 22:16:18.875
+!MESSAGE Activated before the state location was initialized. Retry after the state location is initialized.
+
+!ENTRY ch.qos.logback.classic 1 0 2025-02-23 22:27:09.079
+!MESSAGE Logback config file: /Users/skyc4ff3ine/eclipse-workspace/.metadata/.plugins/org.eclipse.m2e.logback/logback.2.6.1.20240411-1122.xml
+
+!ENTRY net.sourceforge.vrapper.eclipse 1 0 2025-02-23 22:27:27.153
+!MESSAGE No .vrapperrc or _vrapperrc found.
+
+!ENTRY net.sourceforge.vrapper.eclipse 1 0 2025-02-23 22:31:41.773
+!MESSAGE No .vrapperrc or _vrapperrc found.
+
+!ENTRY net.sourceforge.vrapper.eclipse 1 0 2025-02-23 22:32:40.028
+!MESSAGE No .vrapperrc or _vrapperrc found.
