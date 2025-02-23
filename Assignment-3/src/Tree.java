@@ -9,6 +9,9 @@ import java.awt.Color;          // general colors (as triples of red,green,blue 
  
 interface ITree {
   WorldImage  draw();
+  boolean     isDropping();
+  ITree combine(int leftLength, int rightLength, double leftTheta, double rightTheta, ITree otherTree);
+  ITree helperCombine(double theta);
 }
  
 class Leaf implements ITree {
@@ -26,6 +29,24 @@ class Leaf implements ITree {
     return 
           new CircleImage(this.size, OutlineMode.SOLID, this.color);
   }
+  
+  public boolean isDropping()
+  {
+    return false;
+  }
+  
+  public ITree combine(int leftLength, int rightLength, double leftTheta, double rightTheta, ITree otherTree)
+  {
+    return 
+          new Branch(leftLength, rightLength, leftTheta, rightTheta, this, otherTree.helperCombine(rightTheta));
+  }
+  
+  public ITree helperCombine(double theta)
+  {
+    return this;
+  }
+  
+
   
 }
  
@@ -48,19 +69,44 @@ class Stem implements ITree {
   
   public WorldImage draw()
   {
-    WorldImage stem = 
-              new LineImage(
-                  new Posn(
-                      0, 
-                      this.length 
-                  ),
-                  Color.GRAY
-              )
-              .movePinholeTo(new Posn(0, - this.length / 2));
 
+    int x1 = (int) Math.round(this.length * Math.cos(Math.toRadians(this.theta)));
+    int y1 = (int) Math.round(this.length * Math.sin(Math.toRadians(this.theta)));
+
+    WorldImage stem =
+        new LineImage(
+                new Posn(
+                    x1, 
+                    y1
+                ),
+                Color.GRAY
+            )
+            .movePinhole(- x1 / 2,  - y1 / 2);
+    
+    
     WorldImage restTree = new OverlayImage(this.tree.draw(), stem);
-    return restTree;
+
+    return 
+        restTree.movePinhole(- x1, - y1);
   }
+  
+  
+  public boolean isDropping()
+  {
+    return this.theta < 90 || this.theta > 270 || this.tree.isDropping();
+  }
+  
+  
+  
+  public ITree combine(int leftLength, int rightLength, double leftTheta, double rightTheta, ITree otherTree)
+  {
+    return new Branch(leftLength, rightLength, leftTheta, rightTheta, this,otherTree); 
+  }
+  
+  public ITree helperCombine(double theta) {
+    return new Stem(length, this.theta + theta, tree.helperCombine(theta));
+  }
+  
 }
 
  
@@ -88,8 +134,9 @@ class Branch implements ITree {
    public WorldImage draw()
   {
     int x1 = (int) Math.round(this.leftLength * Math.cos(Math.toRadians(this.leftTheta)));
-    int y1 = (int) Math.round(this.leftLength * Math.sin(Math.toRadians(this.leftTheta)));
+    int y1 = (int) Math.round(- this.leftLength * Math.sin(Math.toRadians(this.leftTheta)));
     
+
     WorldImage leftBranch = 
         new OverlayImage(
             left.draw(),
@@ -97,10 +144,11 @@ class Branch implements ITree {
               new Posn(x1, y1),
               Color.GRAY
               ).movePinhole(x1 / 2, y1 / 2)
-            ).movePinhole(- x1, - y1);
+            ).movePinhole(- x1, - y1)
+        ;
 
     int x2 = (int) Math.round(this.rightLength * Math.cos(Math.toRadians(this.rightTheta)));
-    int y2 = (int) Math.round(this.rightLength * Math.sin(Math.toRadians(this.rightTheta)));
+    int y2 = (int) Math.round(- this.rightLength * Math.sin(Math.toRadians(this.rightTheta)));
    
     WorldImage rightBranch =
         new OverlayImage(
@@ -114,14 +162,33 @@ class Branch implements ITree {
            new OverlayImage(leftBranch, rightBranch);
   }
 
+   
+  public boolean isDropping()
+  {
+    return
+        (this.leftTheta < 90 || this.leftTheta > 270) || this.left.isDropping() 
+        ||
+        (this.rightTheta < 90 || this.rightTheta > 270) || this.right.isDropping();
+  }
+
+  public ITree combine(int leftLength, int rightLength, double leftTheta, double rightTheta, ITree otherTree) {
+   return new Branch(leftLength, rightLength, leftTheta, rightTheta, this.helperCombine(leftTheta - 90), otherTree.helperCombine(rightTheta - 90)); 
+  }
+  
+  
+  public ITree helperCombine(double theta) {
+    return new Branch(leftLength, rightLength, leftTheta + theta, rightTheta + theta,
+        left.helperCombine(theta), right.helperCombine(theta));
+  }
+ 
 }
 
 class ExamplesTree{
   ExamplesTree(){}
 
   // Tree
-  ITree tree1 = new Branch(30, 30, 135, 40, new Leaf(10, Color.RED), new Leaf(15, Color.BLUE));
-  ITree tree2 = new Branch(30, 30, 115, 65, new Leaf(15, Color.GREEN), new Leaf(8, Color.ORANGE));
+  ITree t_0 = new Branch(30, 30, 135, 40, new Leaf(10, Color.RED), new Leaf(15, Color.BLUE));
+  ITree t_1 = new Branch(30, 30, 115, 65, new Leaf(15, Color.GREEN), new Leaf(8, Color.ORANGE));
 
   // Leaf 
   ITree l_0 = new Leaf(10, Color.RED);
@@ -130,8 +197,8 @@ class ExamplesTree{
   ITree l_3 = new Leaf(8, Color.ORANGE);
 
   // Stem
-  ITree s_0 = new Stem(50, 90, tree1);
-  ITree s_1 = new Stem(40, 90, tree2);
+  ITree s_0 = new Stem(50, 90, t_0);
+  ITree s_1 = new Stem(40, 90, t_1);
 
   // Branch 
   ITree b_0 = new Branch(30, 30, 135, 40, l_0, l_1);
@@ -154,4 +221,44 @@ class ExamplesTree{
         && c.show()
        ;
   } 
+
+  boolean testCombine(Tester t) {
+    WorldCanvas c = new WorldCanvas(500, 500);
+    WorldScene s = new WorldScene(500, 500);
+
+    int ORIGINPOINTX = 500 / 2;
+    int ORIGINPOINTY = 500 / 2;
+
+    ITree t_2 = t_0.combine(40, 50, 150, 30, t_1);
+    return 
+        c.drawScene(s.placeImageXY(t_2.draw(), ORIGINPOINTX, ORIGINPOINTY))
+        && c.show()
+       ;
+  }
+
+   boolean testIsDropping(Tester t) {
+     ITree s_2 = new Stem(120, 120, l_0);
+     
+    return 
+       t.checkExpect(s_0.isDropping(), true)
+       &&
+       t.checkExpect(s_1.isDropping(), true)
+       &&
+       t.checkExpect(s_2.isDropping(), false)
+       &&
+       t.checkExpect(t_0.isDropping(), true)
+       &&
+       t.checkExpect(t_1.isDropping(), true)
+       &&
+       t.checkExpect(b_0.isDropping(), true)
+       &&
+       t.checkExpect(b_1.isDropping(), true)
+       &&
+       t.checkExpect(l_0.isDropping(), false)
+       &&
+       t.checkExpect(l_1.isDropping(), false)
+       ;
+  } 
+  
+  
 }
