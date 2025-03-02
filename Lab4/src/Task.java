@@ -17,13 +17,31 @@ class Task {
   int getTask() {
     return pre.getPre();
   }
+  
+  boolean getPre(ITask tasks) {
+    return pre.isCompletable(tasks);
+  }
+  
+  int getTaskID() {
+    return this.id;
+  }
+  
+  
+  ITask getCompletableTask(ITask tasks) {
+    return pre.getCompletableTask(this, tasks);
+  }
+ 
+
 } 
 
 interface IPre{
   boolean hasCycle(int id, ITask tasks);
   boolean helperHasCycle(int id, ITask tasks);
-  boolean hasId(int id);
   int getPre();
+  
+  boolean isCompletable(ITask tasks);
+  boolean helperIsCompletable(ITask tasks);
+  ITask getCompletableTask(Task task, ITask tasks);
 }
 
 class ConsPre implements IPre{
@@ -51,17 +69,26 @@ class ConsPre implements IPre{
   {
     return this.first;
   }
-
   
-
-  public boolean hasId(int id)
+  public boolean isCompletable(ITask tasks)
   {
-    if(this.first == id) {
-      return true;
-    }else {
-      return this.rest.hasId(id);
-    }
+    return this.helperIsCompletable(tasks);
   }
+  
+  
+  public boolean helperIsCompletable(ITask tasks) {
+    if(tasks.helperIsCompletable(tasks, this.first)) {
+      return this.rest.helperIsCompletable(tasks);
+    }else {
+      return false;
+    }
+
+  }
+  
+  public ITask getCompletableTask(Task task, ITask tasks) {
+     return tasks.getRest().getCompletableTask();
+  }
+ 
 
 }
 
@@ -86,12 +113,32 @@ MtLoPre(){}
    public int getPre() {
     return 0; 
    }
+   
+   public boolean isCompletable(ITask task)
+   {
+     return true;
+   }
+ 
+   public boolean helperIsCompletable(ITask tasks) {
+    return true;
+   }
+   
+   public ITask getCompletableTask(Task task, ITask tasks) {
+     return new ConsTask(task,tasks.getRest().getCompletableTask());
+   }
+
+   
 }
 
 
 interface ITask{
  boolean hasCycle();
  int getTask();
+ boolean isCompletable();
+ boolean helperIsCompletable(ITask task, int pre); 
+ 
+ ITask getCompletableTask();
+ ITask getRest();
 }
 
 class ConsTask implements ITask{
@@ -116,9 +163,31 @@ class ConsTask implements ITask{
     return first.getTask(); 
   }
   
+  public boolean isCompletable() {
+    return first.getPre(this);
+  }
   
-
+  public int getTaskID() {
+    return first.getTaskID();
+  }
+  
+  public boolean helperIsCompletable(ITask task, int pre) {
+    if(this.getTaskID() == pre){
+      return true; 
+    }else {
+      return this.rest.helperIsCompletable(task,pre);
+    }
 }
+  
+  public ITask getCompletableTask() {
+    return first.getCompletableTask(this);
+  }
+  
+  public ITask getRest() {
+    return this.rest;
+  }
+
+}  
 
 
 class MtLoTask implements ITask{
@@ -133,6 +202,22 @@ class MtLoTask implements ITask{
     return 0;
   }
 
+  public boolean isCompletable() {
+    return true;
+  }
+  
+  public boolean helperIsCompletable(ITask task, int pre) {
+    return false;
+  }
+  
+  public ITask getCompletableTask() {
+    return new MtLoTask();
+  }
+  
+  public ITask getRest() {
+    return this;
+  }
+    
 }
 
 class ExamplesTask{
@@ -193,6 +278,7 @@ class ExamplesTask{
   ITask lt_3 = new ConsTask(t_5, new ConsTask(t_6, emptyTask));
 
   
+  // Cyclic 
   Task t_7 = new Task(8, new ConsPre(9, emptyPre));
   Task t_8 = new Task(9, new ConsPre(10, emptyPre));
   IPre pre_4 = new ConsPre(11, emptyPre);
@@ -224,4 +310,44 @@ class ExamplesTask{
         t.checkExpect(lt_4.hasCycle(), true)
         ;
   }
-}
+  
+  // Test the method isCompletable 
+  boolean testIsCompletable(Tester t) {
+  Task t_nC = 
+      new Task(4, pre_0);
+  ITask lt_nC = new ConsTask(t_nC, emptyTask);
+  
+
+  ITask lt_nC_2 = new ConsTask(t_5, emptyTask);
+
+    return 
+        t.checkExpect(lt_0.isCompletable(), true)
+        &&
+        t.checkExpect(lt_4.isCompletable(), true)
+        &&
+        t.checkExpect(lt_nC.isCompletable(), false)
+        &&
+        t.checkExpect(lt_nC_2.isCompletable(), false)
+        &&
+        t.checkExpect(lt_0.isCompletable(), true)
+        &&
+        t.checkExpect(lt_1.isCompletable(), true)
+        &&
+        t.checkExpect(lt_2.isCompletable(), true)
+        ;
+  }
+  
+  // Test the method isCompletable 
+  boolean testGetCompletableTask(Tester t) {
+
+    return 
+        t.checkExpect(lt_0.getCompletableTask(), lt_0)
+        &&
+        t.checkExpect(lt_1.getCompletableTask(), lt_0)
+        &&
+        t.checkExpect(lt_2.getCompletableTask(), lt_0)
+        &&
+        t.checkExpect(lt_3.getCompletableTask(), emptyTask)
+
+        ;
+  }}
