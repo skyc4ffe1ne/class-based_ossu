@@ -32,6 +32,7 @@ class Task {
   }
  
 
+
 } 
 
 interface IPre{
@@ -136,9 +137,14 @@ interface ITask{
  int getTask();
  boolean isCompletable();
  boolean helperIsCompletable(ITask task, int pre); 
+
+ int getTaskID(); 
  
  ITask getCompletableTask();
  ITask getRest();
+
+ ITask removeTask(ITask tasks); 
+ ITask finalTaskSorted();
 }
 
 class ConsTask implements ITask{
@@ -186,7 +192,31 @@ class ConsTask implements ITask{
   public ITask getRest() {
     return this.rest;
   }
-
+  
+  public ITask removeTask(ITask tasks) {
+    // 1                            (1,2,3)
+    if(this.first.getTaskID() == tasks.getTaskID()) {
+      return this.rest.removeTask(tasks.getRest());
+    }else {
+      return new ConsTask(this.first, this.rest.removeTask(tasks));
+    }
+  }
+  
+  
+  public ITask finalTaskSorted() {
+   if(this.isCompletable() && !this.hasCycle()) {
+     ITask completedTask = this.getCompletableTask(); // 1,2,3
+     ITask removeCompletedTask = this.removeTask(completedTask); // 1,2,3,4,5 ->  4,5
+     if(this.rest instanceof MtLoTask ) {
+       return completedTask.append(removeCompletedTask); // ??? 
+     }else {
+       return completedTask.updateCompletedTask(removeCompletedTask); // ???
+     }
+   }else {
+     return new MtLoTask();
+   }
+  }
+ 
 }  
 
 
@@ -199,6 +229,10 @@ class MtLoTask implements ITask{
   }
  
   public int getTask() {
+    return 0;
+  }
+
+  public int getTaskID() {
     return 0;
   }
 
@@ -215,6 +249,15 @@ class MtLoTask implements ITask{
   }
   
   public ITask getRest() {
+    return this;
+  }
+  
+  public ITask removeTask(ITask tasks) {
+    return this;
+  }
+  
+  
+  public ITask finalTaskSorted() {
     return this;
   }
     
@@ -329,15 +372,13 @@ class ExamplesTask{
         &&
         t.checkExpect(lt_nC_2.isCompletable(), false)
         &&
-        t.checkExpect(lt_0.isCompletable(), true)
-        &&
         t.checkExpect(lt_1.isCompletable(), true)
         &&
         t.checkExpect(lt_2.isCompletable(), true)
         ;
   }
   
-  // Test the method isCompletable 
+  // Test the method getCompletableTask 
   boolean testGetCompletableTask(Tester t) {
 
     return 
@@ -348,6 +389,29 @@ class ExamplesTask{
         t.checkExpect(lt_2.getCompletableTask(), lt_0)
         &&
         t.checkExpect(lt_3.getCompletableTask(), emptyTask)
-
         ;
-  }}
+  }
+  
+  // Test the method removeTask 
+  boolean testRemoveTask(Tester t) {
+
+  ITask lt_only3 = new ConsTask(t_3, emptyTask);
+    return 
+        t.checkExpect(lt_0.removeTask(lt_0), emptyTask)
+        &&
+        t.checkExpect(lt_1.removeTask(lt_0), lt_only3)
+        ;
+  }
+ 
+  
+  // Test the method finalTaskSorted 
+  boolean testFinalTaskSorted(Tester t) {
+
+
+  ITask lt_only4_5 = new ConsTask(t_4, new ConsTask(t_3, emptyTask));
+    return 
+        t.checkExpect(lt_2.finalTaskSorted(), lt_only4_5)
+          ;
+  }
+
+}
