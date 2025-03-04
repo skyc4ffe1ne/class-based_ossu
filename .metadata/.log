@@ -12574,3 +12574,25 @@ Caused by: java.lang.IllegalArgumentException: Index out of bounds
 
 !ENTRY net.sourceforge.vrapper.eclipse 1 0 2025-03-04 10:40:11.666
 !MESSAGE No .vrapperrc or _vrapperrc found.
+!SESSION 2025-03-04 12:50:07.043 -----------------------------------------------
+eclipse.buildId=4.33.0.20240905-0613
+java.version=23.0.1
+java.vendor=Eclipse Adoptium
+BootLoader constants: OS=macosx, ARCH=x86_64, WS=cocoa, NL=en_IT
+Framework arguments:  -product org.eclipse.epp.package.java.product -keyring /Users/skyc4ff3ine/.eclipse_keyring
+Command-line arguments:  -os macosx -ws cocoa -arch x86_64 -product org.eclipse.epp.package.java.product -keyring /Users/skyc4ff3ine/.eclipse_keyring
+
+!ENTRY ch.qos.logback.classic 1 0 2025-03-04 12:50:38.977
+!MESSAGE Activated before the state location was initialized. Retry after the state location is initialized.
+
+!ENTRY org.eclipse.core.resources 2 10035 2025-03-04 12:51:12.412
+!MESSAGE The workspace exited with unsaved changes in the previous session; refreshing workspace to recover changes.
+
+!ENTRY ch.qos.logback.classic 1 0 2025-03-04 12:51:14.888
+!MESSAGE Logback config file: /Users/skyc4ff3ine/eclipse-workspace/.metadata/.plugins/org.eclipse.m2e.logback/logback.2.6.1.20240411-1122.xml
+
+!ENTRY net.sourceforge.vrapper.eclipse 1 0 2025-03-04 13:44:27.236
+!MESSAGE No .vrapperrc or _vrapperrc found.
+
+!ENTRY net.sourceforge.vrapper.eclipse 1 0 2025-03-04 13:50:50.293
+!MESSAGE No .vrapperrc or _vrapperrc found.
