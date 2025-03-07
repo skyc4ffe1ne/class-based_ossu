@@ -24,28 +24,32 @@ class runnerByName implements IPred<Runner> {
   public boolean apply(Runner r){return r.name.equals("Micheal");}
 }
 
-
-
-
-
 interface IFunc<A, R>{
-  boolean apply(A arg, R arg2);
+  R apply(A arg);
 }
 
-class runnerByReadedBook implements IFunc<Book, IList<Runner>>{
-  public boolean apply(Book b, IList<Runner> runners){
-    if(runners.getFirst().equals(b.name)) {
-      return true;
-    }else {
-      return false;
-    }
+class RunnerToStringName implements IFunc<Runner,String>{
+  public String apply (Runner r) {
+     return r.name;
+  }
+}
+
+class RunnerToAge implements IFunc<Runner, Integer>{
+  public Integer apply (Runner r) {
+     return r.pos;
+  }
+}
+
+class RunnerToBook implements IFunc<Runner, Book>{
+  public Book apply (Runner r) {
+    return r.bookRead;
   }
 }
 
 interface IList<T>{
   boolean find(IPred<T> pred);
   T getFirst();
-//  IList<T> something(IFunc f);
+  <R> IList<R>map(IFunc <T,R> func);
 }
 
 class ConsLo<T> implements IList<T>{
@@ -69,16 +73,12 @@ class ConsLo<T> implements IList<T>{
     }
   }
   
-//  public IList<T> something(IFunc f){
-//    if(f.apply(this.first.getBook(), this.first.getName())) {
-//      return new IList<T>(this.first, this.rest.something(f));
-//    }else {
-//      return this.rest.something(f);
-//    }
-//  }
-
   public T getFirst() {
     return this.first;
+  }
+  
+  public <R> IList<R> map(IFunc <T,R> func){
+    return new ConsLo<R>(func.apply(this.first), this.rest.map(func));
   }
 
 }
@@ -96,6 +96,10 @@ class MtLo<T> implements IList<T>{
   
   public T getFirst() {
     return this.getFirst();
+  }
+  
+  public <R> IList<R> map(IFunc <T,R> func){
+    return new MtLo<R>();
   }
 }
 
@@ -165,7 +169,10 @@ class ExamplesStringAndRunner{
           new ConsLo<Runner>(r_1,
               new ConsLo<Runner> (r_2, 
                   emptyRunner)));
-  
+
+  IFunc<Runner, Book> runnerToBook = new RunnerToBook();
+  IFunc<Runner, Integer> runnerToAge = new RunnerToAge();
+  IFunc<Runner, String> runnerToStringName = new RunnerToStringName();
   
   boolean testApply(Tester t) {
     return 
@@ -188,6 +195,29 @@ class ExamplesStringAndRunner{
         t.checkExpect(loB_0.find(bookByAuthor), true)
         &&
         t.checkExpect(loR_0.find(runnerByName), true)
-        ;
+       ;
   } 
+  
+  boolean testMap(Tester t) {
+    return 
+        t.checkExpect(loR_0.map(runnerToBook),
+            new ConsLo<Book>(b_0,
+                new ConsLo<Book>(b_1,
+                    new ConsLo<Book>(b_2,
+                        new MtLo<Book>()))))
+        &&
+        t.checkExpect(loR_0.map(runnerToStringName),
+            new ConsLo<String>(r_0.name,
+                new ConsLo<String>(r_1.name,
+                    new ConsLo<String>(r_2.name,
+                        new MtLo<String>()))))
+        &&
+        t.checkExpect(loR_0.map(runnerToAge),
+            new ConsLo<Integer>(r_0.pos,
+                new ConsLo<Integer>(r_1.pos,
+                    new ConsLo<Integer>(r_2.pos,
+                        new MtLo<Integer>()))))
+ 
+       ;
+  }
 }
