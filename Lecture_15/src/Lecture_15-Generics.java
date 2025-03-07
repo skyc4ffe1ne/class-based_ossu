@@ -24,6 +24,7 @@ class runnerByName implements IPred<Runner> {
   public boolean apply(Runner r){return r.name.equals("Micheal");}
 }
 
+// [A1] -> R
 interface IFunc<A, R>{
   R apply(A arg);
 }
@@ -46,10 +47,24 @@ class RunnerToBook implements IFunc<Runner, Book>{
   }
 }
 
+// [A1,A2] -> R
+interface IFunc2<A1, A2, R>{
+  R apply(A1 arg1, A2 arg2);
+}
+
+class TotalAgeOfRunners implements IFunc2<Runner, Integer, Integer>{
+  public Integer apply(Runner r, Integer sum) {
+    return r.pos + sum; 
+  }
+}
+
 interface IList<T>{
   boolean find(IPred<T> pred);
   T getFirst();
   <R> IList<R>map(IFunc <T,R> func);
+
+  // R = Integer T = Runner
+  <R> R foldr(IFunc2 <T,R,R> func, R initialValue);
 }
 
 class ConsLo<T> implements IList<T>{
@@ -80,6 +95,11 @@ class ConsLo<T> implements IList<T>{
   public <R> IList<R> map(IFunc <T,R> func){
     return new ConsLo<R>(func.apply(this.first), this.rest.map(func));
   }
+  
+  
+  public <R> R foldr(IFunc2 <T,R,R> func, R intialValue) {
+    return func.apply(this.first, this.rest.foldr(func, intialValue));
+  }
 
 }
 
@@ -100,6 +120,10 @@ class MtLo<T> implements IList<T>{
   
   public <R> IList<R> map(IFunc <T,R> func){
     return new MtLo<R>();
+  }
+  
+  public <R> R foldr(IFunc2 <T,R,R> func, R initialValue) {
+    return initialValue;
   }
 }
 
@@ -173,6 +197,8 @@ class ExamplesStringAndRunner{
   IFunc<Runner, Book> runnerToBook = new RunnerToBook();
   IFunc<Runner, Integer> runnerToAge = new RunnerToAge();
   IFunc<Runner, String> runnerToStringName = new RunnerToStringName();
+
+  IFunc2<Runner, Integer, Integer> totalAgeOfRunners = new TotalAgeOfRunners();
   
   boolean testApply(Tester t) {
     return 
@@ -217,7 +243,11 @@ class ExamplesStringAndRunner{
                 new ConsLo<Integer>(r_1.pos,
                     new ConsLo<Integer>(r_2.pos,
                         new MtLo<Integer>()))))
- 
        ;
+  }
+  
+  boolean testFoldr(Tester t) {
+   return 
+       t.checkExpect(loR_0.foldr(totalAgeOfRunners, 0), 133);
   }
 }
