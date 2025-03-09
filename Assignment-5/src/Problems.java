@@ -39,10 +39,10 @@ class Util{
 }
 
 
-class Posn{
+class Posn2{
   int y,x;
   
-  Posn(int y, int x){
+  Posn2(int y, int x){
     this.y = y;
     this.x = x;
   }
@@ -53,10 +53,10 @@ class Posn{
 //  the given initial values satisfy these conditions.
 
 class Rectangle{
-  Posn loc;
+  Posn2 loc;
   int w, h;
   
-  Rectangle(Posn loc, int w, int h){
+  Rectangle(Posn2 loc, int w, int h){
     if(
         w > 0 &&
         h > 0 &&
@@ -334,8 +334,8 @@ class ExamplesRect {
     
     ExamplesRect(){}
     
-   Posn p_0 = new Posn(150,150);
-   Posn p_1 = new Posn(0,0);
+   Posn2 p_0 = new Posn2(150,150);
+   Posn2 p_1 = new Posn2(0,0);
    Rectangle r_0 = new Rectangle(p_0, 100, 100);
    
    boolean testCheckConstructorException(Tester t) {
